@@ -1,41 +1,44 @@
 <?php
-include '../public/include_list.php';
+require '../public/rw_html.inc';
+$html = new RW_HTMLElement('html');
 
-$handle = fopen('script.js','r');
-
-$head = new RW_HTMLHead();
-$script = new RW_HTMLScriptFromFile('script.js');
-$script->addAttribute('id','me');
-$title = new RW_HTMLElement('title');
-$title->innerHTML = "OOPHP TEST"; 
+$head = new RW_HTMLElement('head');
+$html->addElement($head);
+$script = new RW_HTMLElement('script');
 $head->addElement($script);
-$head->addElement($title);
+$paraID = 'itali';
+$code = <<<END
+function init(phrase) {
+	para = document.getElementById('$paraID');
+	para.innerHTML = phrase;
+}
 
-$body = new RW_HTMLBody();
-$div1 = new RW_HTMLDiv(array('align'=>'center'));
+function change() {
+	var input = document.getElementsByTagName('input')[0];
+	para.innerHTML = input.value;
+}	
+END;
+$script->addElement($code);
 
-$link = new RW_MySQLLink('localhost', 'reese', 'reese', 'paris');
-$table = new RW_HTMLTableMySQL(array('border'=>2));
-$result = new RW_MySQLResult($link->query('SELECT*FROM betainspectors'));
-$table->buildFromResult($result);
+$scriptName = 'init("game")';
+$body = new RW_HTMLElement('body',array('onload'=>'init("game")'));
+$html->addElement($body);
+$div = new RW_HTMLElement('div');
+$body->addElement($div);
 
-$div1->addElement($table);
-$p = new RW_HTMLElement('p',array('id'=>'para'));
-$p->innerHTML = "Something";
-$button = new RW_HTMLElement('button',
-		array('onclick'=>"respond(document.getElementById(\"para\"))"),
-		"Does smting");
-$table->addRow(array($p,$button));
-$body->addElement($div1);
+$table = new RW_HTMLTable(array('Task','Action'),array('border'=>1));
+$p=new RW_HTMLElement('p');
+$p->addElement('This is a paragraph');
+$i = new RW_HTMLElement('i',array('id'=>$paraID));
+$i->addElement('This is italicized');
+$table->addRow(array($p,$i));
+$div->addElement($table);
+$input = new RW_HTMLElement('input');
+$input->isSelfClosing(true);
+$table->addElementAsRow($input);
+$button = new RW_HTMLElement('button',array('onclick'=>'change()'));
+$button->addElement('Click Me');
+$table->addElementAsRow($button);
 
-$break = new RW_HTMLSingleTag('input',array('type'=>'text'));
-$div1->insertElement($break, 0);
-
-$html = new RW_HTMLPage();
-$html->setHead($head);
-$html->setBody($body);
-
-$html->display();
-
-fclose($handle);
+echo $html;
 ?>

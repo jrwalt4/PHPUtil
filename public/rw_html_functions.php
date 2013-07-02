@@ -1,5 +1,6 @@
 <?php
-class RW_HTMLPage extends RW_HTMLSection {
+/*
+class RW_HTML extends RW_HTMLSection {
 	protected $pageDef;
 	
 	function __construct($pageDef=null,$head=null,$body=null) {
@@ -34,3 +35,5 @@ class RW_HTMLPage extends RW_HTMLSection {
 		parent::display();
 	}
 }
+*/
+?>

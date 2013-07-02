@@ -1,42 +1,39 @@
 <?php  
-class RW_HTMLElement implements RW_HTMLDisplay {
+class RW_HTMLElement {
 	protected $tagName;
 	protected $attributes;
-	protected $startTag;
+	private $selfClosing;
 	protected $elements;
-	protected $endTag;
-	public $innerHTML;
 	protected $parentElement;
 	
-	function __construct($tagName,$attributes=array(),$innerHTML="") {
+	function __construct($tagName,$attributes=array(),$self_closing=false) {
 		$this->tagName = $tagName;
 		$this->attributes = $attributes;
-		$this->elements = array();
-		$this->setAttributes($attributes);	
-		$this->endTag = "</$this->tagName>";
-		$this->innerHTML = $innerHTML;
+		$this->selfClosing = $self_closing;
+		$this->elements = array();	
 	}
 	
 	function __destruct() {
+		unset($this->attributes);
 		unset($this->elements);
 	}
 	
-	function addAttribute($key,$val) {
-		$this->attributes[$key] = $val;
-		$this->setAttributes($this->attributes);
+	protected function setElementAtIndex($el,$ind) {
+		$this->elements[$ind] = $el;
+		if ($el instanceof RW_HTMLElement) {
+			$el->setParent($this);
+		}
 	}
 	
 	function addElement($el) {
-		if ($el instanceof RW_HTMLDisplay) {
-			array_push($this->elements,$el);
-		}
+		array_push($this->elements,$el);
 		if ($el instanceof RW_HTMLElement) {
 			$el->setParent($this);
 		}
 	}
 	
 	function insertElement($el,$pos) {
-		$cnt = count($this->elements);
+		$cnt = $this->elementCount();
 		if ($pos <= $cnt) {
 			if ($pos == $cnt) {
 				array_push($this->elements, $el);
@@ -47,12 +44,13 @@ class RW_HTMLElement implements RW_HTMLDisplay {
 				for ($i = $cnt-1; $i > $pos ; $i--) {
 					$elAry[$i] = $this->elements[$i-1];
 				}
-				$elAry[$pos] = $el;
 				$this->elements = $elAry;
+				unset($elAry);
+				$this->setElementAtIndex($el, $pos);
 			}
-			$el->setParent($this);
 		}
 	}
+	
 	function removeElementAtIndex($index) {
 		$cnt = $this->elementCount();
 		if (!($index >= $cnt)) {
@@ -85,19 +83,6 @@ class RW_HTMLElement implements RW_HTMLDisplay {
 		return true;
 	}
 	
-	function lnBreak() {
-		echo " <br> ";
-	}
-	
-	function display() {
-		echo $this->startTag;
-		echo $this->innerHTML;
-		foreach($this->elements as $element) {
-			$element->display();
-		}
-		echo $this->endTag;
-	}
-	
 	function elementCount() {
 		return count($this->elements);
 	}
@@ -106,22 +91,22 @@ class RW_HTMLElement implements RW_HTMLDisplay {
 		return $this->tagName;
 	}
 	
-	function setStartTag($tag) {
-		$this->startTag = $tag;
-	}
-	
-	function setEndTag($tag) {
-		$this->endTag = $tag;
-	}
-	
-	function setAttributes($att) {
-		$this->attributes = $att;
-		$tag = "<$this->tagName";
-		foreach ($this->attributes as $key=>$val) {
-			$tag.=" $key='$val'";
+	function isSelfClosing($sc) {
+		if (is_bool($sc)) {
+			switch ($this->tagName) {
+				case "input":
+				case "button":
+				case "br":
+					$this->selfClosing = $sc;
+					break;
+				default:
+					$this->selfClosing = false;
+			}
 		}
-		$tag .= ">";//($endTag == "")? "/>" : ">";
-		$this->startTag = $tag;
+	}
+
+	function setAttribute($key,$val) {
+		$this->attributes[$key] = $val;
 	}
 	
 	function getAttributes() {
@@ -132,7 +117,30 @@ class RW_HTMLElement implements RW_HTMLDisplay {
 		$this->parentElement = $par;
 	}
 	
+	function getParent() {
+		return $this->parent;
+	}
+	
 	function removeParent() {
 		$this->parentElement = null;
+	}
+	
+	function __toString() {
+		$string = EOL."<$this->tagName";
+		foreach ($this->attributes as $attName=>$att) {
+			//$att = escapeshellarg($att);
+			$string.= " $attName='$att'";
+		}
+		if ($this->selfClosing) {
+			$string.= " />";
+		}
+		else {
+			$string.= ">";
+			foreach($this->elements as $element) {
+				$string.= $element;
+			}
+			$string.= "</$this->tagName>".EOL;
+		}
+		return $string;
 	}
 }
