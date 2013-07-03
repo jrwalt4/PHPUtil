@@ -1,18 +1,19 @@
 <?php
 
-class RW_HTMLTable extends RW_HTMLSection {
+class RW_HTMLTable extends RW_HTMLElement {
 	protected $rowCount;
 	protected $fields;
 	
-	function __construct($attributes=array(),$fields=array()) {
+	function __construct($fields,$attributes=array()) {
 		parent::__construct('table',$attributes);
 		if (!is_null($fields)) {
-			$this->setHeader($fields);
+			$this->addRow($fields,true);
 			$this->fields = $fields;
 		}
 		$this->rowCount = 0;
 	}
 	
+<<<<<<< HEAD
 	function setHeader($header) {
 		if (count($this->elements)==0) {
 			if (is_array($header)) {
@@ -48,27 +49,47 @@ class RW_HTMLTable extends RW_HTMLSection {
 		$newRow = new RW_HTMLSection('tr');
 		//if(count($entry) == count($this->fields)) 
 		{
+=======
+	protected static function buildRow($entry,$header = false) {
+		$row = new RW_HTMLElement('tr');
+		if (is_array($entry)) {
+>>>>>>> 2c8a0c80a6b501887d5a4222ae501f425ae2f85b
 			foreach ($entry as $value) {
-				$td = new RW_HTMLElement('td');
-				if (is_a($value, 'RW_HTMLElement')) {
-					$td->addElement($value);
-				} else $td->innerHTML = $value;
-				$newRow->addElement($td);
+				$cell = $header? new RW_HTMLElement('th') : new RW_HTMLElement('td');
+				$cell->addElement($value);
+				$row->addElement($cell);
 			}
 		}
+		return $row;
+	} 
+	
+	function addRow($entry,$header = false) {
+		$newRow = RW_HTMLTable::buildRow($entry,$header);
 		$this->addElement($newRow);
 		$this->rowCount++;
 	}
 	
+	function setRow($entry,$index,$header=false) {
+		if($index < $this->elementCount()) {
+			$row = RW_HTMLTable::buildRow($entry,$header);
+			$this->setElementAtIndex($row, $index);
+			$this->rowCount++;
+		}
+	}
+	
 	function removeRow($index) {
-		if($index < count($this->elements)) {
-			$this->removeElementAtIndex($index+1);
+		if($index < $this->elementCount()) {
+			$this->removeElementAtIndex($index);
 		}
 		$this->rowCount--;
 	}
 	
-	function getFields() {
-		return $this->fields;
+	function addElementAsRow($element) {
+		$tr = new RW_HTMLElement('tr');
+		$td = new RW_HTMLElement('td',array('colspan'=>count($this->fields)));
+		$td->addElement($element);
+		$tr->addElement($td);
+		$this->addElement($tr); 
 	}
 }
 ?>
