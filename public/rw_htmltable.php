@@ -46,7 +46,8 @@ class RW_HTMLTable extends RW_HTMLSection {
 	
 	function addRow($entry,$format = 'td') {
 		$newRow = new RW_HTMLSection('tr');
-		if(count($entry) == count($this->fields)) {
+		//if(count($entry) == count($this->fields)) 
+		{
 			foreach ($entry as $value) {
 				$td = new RW_HTMLElement('td');
 				if (is_a($value, 'RW_HTMLElement')) {
@@ -54,11 +55,6 @@ class RW_HTMLTable extends RW_HTMLSection {
 				} else $td->innerHTML = $value;
 				$newRow->addElement($td);
 			}
-		} else {
-			$att = array('colspan'=>$this->columnCount);
-			$td = new RW_HTMLElement('td',$att);
-			$td->innerHTML = $entry[0];
-			$newRow->addElement($td);
 		}
 		$this->addElement($newRow);
 		$this->rowCount++;

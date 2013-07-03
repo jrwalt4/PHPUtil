@@ -3,6 +3,7 @@
 class RW_HTMLSingleTag implements RW_HTMLDisplay {
 	private $tagName;
 	private $attributes;
+	private $parent;
 	
 	function __construct($name,$attributes = array()) {
 		$this->tagName = $name;
@@ -15,5 +16,9 @@ class RW_HTMLSingleTag implements RW_HTMLDisplay {
 			echo " $key='$val'";
 		}
 		echo "/>";
+	}
+	
+	function setParent($par) {
+		$this->parent = $par;
 	}
 }

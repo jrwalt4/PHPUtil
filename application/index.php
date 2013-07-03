@@ -1,6 +1,6 @@
 <?php
 include '../public/include_list.php';
-
+//echo "something";
 $handle = fopen('script.js','r');
 
 $head = new RW_HTMLHead();
@@ -12,24 +12,24 @@ $head->addElement($script);
 $head->addElement($title);
 
 $body = new RW_HTMLBody();
-$div1 = new RW_HTMLDiv(array('align'=>'center'));
+$div1 = new RW_HTMLElement('div',array('align'=>'center'));
 
-$link = new RW_MySQLLink('localhost', 'reese', 'reese', 'paris');
-$table = new RW_HTMLTableMySQL(array('border'=>2));
-$result = new RW_MySQLResult($link->query('SELECT*FROM betainspectors'));
-$table->buildFromResult($result);
+//$link = new RW_MySQLLink('localhost', 'reese', 'reese', 'paris');
+$table = new RW_HTMLTable(array('border'=>2),array('text'));
+//$result = new RW_MySQLResult($link->query('SELECT*FROM betainspectors'));
+//$table->buildFromResult($result);
 
 $div1->addElement($table);
 $p = new RW_HTMLElement('p',array('id'=>'para'));
 $p->innerHTML = "Something";
 $button = new RW_HTMLElement('button',
 		array('onclick'=>"respond(document.getElementById(\"para\"))"),
-		"Does smting");
+		"Does something");
 $table->addRow(array($p,$button));
 $body->addElement($div1);
 
-$break = new RW_HTMLSingleTag('input',array('type'=>'text'));
-$div1->insertElement($break, 0);
+$break = new RW_HTMLSingleTag('input',array('type'=>'number'));
+$div1->insertElement($break, 1);
 
 $html = new RW_HTMLPage();
 $html->setHead($head);
